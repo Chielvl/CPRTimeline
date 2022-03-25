@@ -1,0 +1,16 @@
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\bin\Debug\TimeLine.exe.config
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\bin\Debug\TimeLine.exe
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\bin\Debug\TimeLine.pdb
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.csproj.AssemblyReference.cache
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.csproj.SuggestedBindingRedirects.cache
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\MainWindow.g.cs
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\App.g.cs
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine_MarkupCompile.cache
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine_MarkupCompile.lref
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\MainWindow.baml
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.g.resources
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.Properties.Resources.resources
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.csproj.GenerateResource.cache
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.csproj.CoreCompileInputs.cache
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.exe
+C:\Shared Folder\Prive\CyberPunkTimeLine\TimeLine\obj\Debug\TimeLine.pdb
