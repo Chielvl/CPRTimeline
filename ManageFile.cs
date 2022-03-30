@@ -100,16 +100,15 @@ public class ManageFile
             // Close the writerFileStream when we are done.
             writerFileStream.Close();
             MessageBox.Show("De tijdlijn is geupdate","Update gelukt" );
-            mainWindow.ClearEntryField();
+            mainWindow.ClearEntryField(mainWindow.EventDesc);
         }
         catch (Exception e)
         {
-            MessageBox.Show("Unable to save our events' information" + e);
+            MessageBox.Show("Het is niet gelukt om de gebeurtenis op te slaan.\n\n + e);
         } // end try-catch
         finally
         {
             writerFileStream.Close();
-            //this.eventsDictionary.Order
         }
     } // end public bool Load()
 

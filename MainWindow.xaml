@@ -8,18 +8,19 @@
         Title="MainWindow" Height="800" Width="1280" WindowState="Maximized" WindowStyle="None" Background="White">
     <Grid>
         <TextBox Name="NotificationBox" BorderBrush="Transparent" TextAlignment="Center" Foreground="Green" HorizontalAlignment="Center" Margin="0,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="1180" Background="Transparent"/>
-        <ScrollViewer Visibility="Hidden" Name="TimeLineHolder" VerticalScrollBarVisibility="Hidden"  Margin="50, 200, 50, 50" HorizontalScrollBarVisibility="Visible"
+        <ScrollViewer Visibility="Visible" Name="TimeLineHolder" VerticalScrollBarVisibility="Hidden"  Margin="50, 200, 50, 50" HorizontalScrollBarVisibility="Visible"
                       HorizontalContentAlignment="Left" Background="Gray">
             <StackPanel Name="TimeLineStackPanel" Orientation="Horizontal" CanVerticallyScroll="False" CanHorizontallyScroll="True" HorizontalAlignment="Stretch"  Background="AliceBlue" >
                 
             </StackPanel>
         </ScrollViewer>
-        <StackPanel Name="AddEntryPanel" Visibility="Visible" Margin="50, 200, 50, 200"  Background="Red">
+        <StackPanel Name="AddEntryPanel" Visibility="Hidden" Margin="50, 200, 50, 200"  Background="Red">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <DatePicker Margin="10" Width="150" Height="25" Name ="Date"></DatePicker>
-            <TextBox Margin="10" Width="150" Height="25"  Name="Character" InputMethod.IsInputMethodEnabled="True" VerticalContentAlignment="Center" AcceptsReturn="false" TextWrapping="WrapWithOverflow" Text="Wie is dit overkomen"></TextBox>
+                <ComboBox Name="CharacterComboBox" VerticalContentAlignment="Center"  Width="150"/>
+                <!--<TextBox Margin="10" Width="150" Height="25"  Name="Character" GotFocus="ClearDefaultCharacter" InputMethod.IsInputMethodEnabled="True" VerticalContentAlignment="Center" AcceptsReturn="false" TextWrapping="WrapWithOverflow" Text="Geef een karakter op."></TextBox>-->
             </StackPanel>
-            <TextBox Margin="10" Height="150"  Name="EventDesc" InputMethod.IsInputMethodEnabled="True" AcceptsReturn="true" TextWrapping="WrapWithOverflow" Text="Geef het event een omschrijving"></TextBox>
+            <TextBox Margin="10" Height="150"  Name="EventDesc" InputMethod.IsInputMethodEnabled="True" GotFocus="ClearDefaultDescription" AcceptsReturn="true" TextWrapping="WrapWithOverflow" Text="Geef het event een omschrijving."></TextBox>
             <Button Width="150" HorizontalAlignment="Right" Margin="10, 0" Name="AddEntryButton" Content="Sla event op" Click="AddEntryButton_Click"/>
             
         </StackPanel>

@@ -28,14 +28,11 @@ namespace TimeLine
         public DateTime CalculateOffSet(string inputString, string timeRef, DateTime currentDate)
         {
             date = currentDate;
+            if (timeRef == null)
+                return currentDate;
 
-            if (inputString != null)
+            if (inputString != null && timeRef != null)
             {
-                MessageBox.Show("time ref " +timeRef);
-                int indexOfTimeRef = inputString.IndexOf(timeRef);
-                int sentenceBeginning = inputString.LastIndexOf(".", indexOfTimeRef) > 0? inputString.LastIndexOf(".", indexOfTimeRef): 0;
-                int sentenceEnd = inputString.IndexOf(".", sentenceBeginning +1) > 0? inputString.IndexOf(".", sentenceBeginning + 1): inputString.Length;
-                inputString = inputString.Substring(sentenceBeginning, sentenceEnd-sentenceBeginning).Trim();
                 //below referes to the next day
                 if (timeRef.Equals("volgende dag")
                     || timeRef.Equals("volgende ochtend")
@@ -43,33 +40,36 @@ namespace TimeLine
                     || timeRef.Equals("volgende avond")
                     || timeRef.Equals("volgende nacht")
                     || timeRef.Equals(" dag erna")
+                    || timeRef.Equals("na een dag")
+                    || timeRef.Equals("na 1 dag")
                     )
                 {
-                    MessageBox.Show("Voeg 1 dag toe");
                     date =  currentDate.AddDays(1.0);
                 }//refers to multiple days have passed
-                else if (timeRef.Equals("dagen"))
+                else if (Regex.IsMatch(timeRef, @"[a-z]*\d* dagen", RegexOptions.IgnoreCase))
                 {
                     double numberOfDays = GetNumberFromString(inputString);
                     date =  currentDate.AddDays(numberOfDays);
                 }
-                else if (timeRef.Equals("weken later"))
+                else if (Regex.IsMatch(timeRef, @"[a-z]*\d* weken", RegexOptions.IgnoreCase))
                 {//refers to multiple weeks have passed
-                    double numberOfWeeks = GetNumberFromString(inputString);
+                    double numberOfWeeks = GetNumberFromString(timeRef);
                     date =  currentDate.AddDays(numberOfWeeks * 7.0);
                 }//refers to the next week
-                else if (timeRef.Equals("volgende week") || timeRef.Equals("week erna"))
+                else if (Regex.IsMatch(timeRef, "na (een|1)|(volgende)? week (erna)?", RegexOptions.IgnoreCase))
+
+                        //timeRef.Equals("volgende week") || timeRef.Equals("week erna") || timeRef.Equals("na een week")|| timeRef.Equals("na 1 week"))
                 {
                     date =  currentDate.AddDays(7.0);
                 }
                 else if (timeRef.Equals("na ") || timeRef.Equals("volgende"))
                 {//gets the day of the week and increments till the next occurence of the named day
+                    
                     foreach (string day in days)
                     {
                         if (inputString.Contains(day))
                         {
                             timeRef = day;
-                            MessageBox.Show(timeRef);
                         }
                         else
                             continue;
@@ -121,7 +121,6 @@ namespace TimeLine
 
         private static DateTime GetNextWeekDay(DateTime currentDate, DayOfWeek targetDay)
         {
-            MessageBox.Show(currentDate.DayOfWeek + " volgende " + targetDay);
             int daysToAdd = ((int)targetDay - (int)currentDate.DayOfWeek + 7) % 7 ;
             return currentDate =  currentDate.AddDays(daysToAdd);
         }

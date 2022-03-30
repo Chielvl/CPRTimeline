@@ -12,9 +12,9 @@ namespace TimeLine
     public class TextReader
     {
         private static TextReader instance;
-        
-        private string[] timeReferences = { "volgende", "dagen later", "weken later", "na ", "dag erna", "week erna", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag" };
-        private int numberOfEntries;
+
+        private Regex regEx = new Regex(@"(volgende (ochtend|avond|[a-z]*dag|week))|((na)\s([a-z]*|\d)\s?(([a-z]{3,6})?[a-z]* weekend|dagen|week|weken|dag))|(([a-z]*|\d){1}\s(dag|dagen|week|weken)\s(later))|((([a-z]{3,6})?dag|weekend)\s(erop|erna|daarop))", RegexOptions.IgnoreCase);
+
         DateTime offSet;
         public MainWindow mainWindow;
         private TextReader()
@@ -30,96 +30,50 @@ namespace TimeLine
 
         public void SetDate(DateTime date)
         {
-            offSet = date;  
+            offSet = date;
         }
 
-        public void ReadText(string inputText, DateTime startingDate, string character)
+        public void ReadText(string input, DateTime startingDate, string character)
         {
-            if(startingDate == DateTime.MinValue)
-            {
-                MessageBox.Show("Vul een datum in, aub", "Vul datum in", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            offSet = startingDate;
-            if (inputText != null)
-            {
-                numberOfEntries++;
-                StringBuilder sub = new StringBuilder(inputText);
-
-                int timeRef = FindTimeReferences(inputText, startingDate);
-                if (timeRef > 0)
-                {
-                    sub.Length = sub.ToString().LastIndexOf(".", timeRef) > 0 ? sub.ToString().LastIndexOf(".", timeRef) + 1 : sub.Length;
-                }
-                MessageBox.Show(sub.ToString());
-                mainWindow.datePicker.SelectedDate = mainWindow.datePicker.DisplayDate =CalculateNextDate.GetInstance().GetDate();
-                Event newEvent = new Event(CalculateNextDate.GetInstance().GetDate(), $" <--- { character } ---> \n{ sub}");
-                MessageBox.Show(newEvent.ToString());
-                ManageFile.GetInstance().AddEvent(newEvent);
-                
-                if (inputText.Length - sub.Length > 1)
-                {
-                    try
-                    {
-                        ReadText(inputText.Substring(sub.Length + 1).Trim(), offSet, character);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"string length {inputText.Length}\n" +
-                            $"sub length {sub.Length}\n" +
-                            ex.ToString());
-                    }
-                }
-            }
             
+            MatchCollection matches = Regex.Matches(input.ToLower(), regEx.ToString(), RegexOptions.IgnoreCase);
+            //if there are no matches, make a single entry;
+            if (matches.Count == 0)
+            {
+                ManageFile.GetInstance().AddEvent(new Event(startingDate, $"<--- { character } --->\n {input}"));
+
+            }
+            else
+            {
+                offSet = startingDate;
+                int subBeginning, subEnding;
+                subBeginning = subEnding = -1;
+                //Loop through array of matches to get all text parts. Start loop at -1 to account for the time reference to appear later in the text.
+                for (int i = -1; i < matches.Count; i++)
+                {
+                    string timeRef;
+                    if (i == -1)
+                    {
+                        //if the first sentence already contains the time reference, skip the -1 sentence;
+                        if (input.LastIndexOf('.', matches[0].Index) < 0)
+                            continue;
+                        subBeginning = input.LastIndexOf('.', matches[0].Index);
+                        subEnding = matches.Count > 0 ? input.LastIndexOf('.', matches[0].Index) : input.Length;
+                        timeRef = null;
+                    }
+                    else
+                    {
+                        subBeginning = input.LastIndexOf('.', matches[0].Index) > 0 ? input.LastIndexOf('.', matches[i].Index) + 1 : 0;
+                        subEnding = i + 1 >= matches.Count ? input.Length : input.LastIndexOf('.', matches[i + 1].Index);
+                        timeRef = matches[i].ToString();
+                    }
+                    string eventString = $"<--- { character } --->\n {input.Substring(subBeginning, subEnding - subBeginning).Trim()} ";
+                    offSet = CalculateNextDate.GetInstance().CalculateOffSet(eventString, timeRef, offSet);
+                    ManageFile.GetInstance().AddEvent(new Event(offSet, eventString));
+                }
+            }
             ManageFile.GetInstance().Save();
-            numberOfEntries = 0;
-        }
-
-        public int FindTimeReferences(string inputText, DateTime currentDate)
-        {
-            int firstRef = inputText.Length;
-            int secondRef = 0;
-            StringBuilder referenceString = new StringBuilder();
-            StringBuilder referenceString2 = new StringBuilder();
-            foreach (string tr in timeReferences)
-            {
-                if (inputText.ToLower().Contains(tr) && inputText.IndexOf(tr) < firstRef)
-                {
-                    secondRef = firstRef;
-                    referenceString2 = referenceString;
-                    referenceString.Clear().Append(tr);
-                    firstRef = inputText.ToLower().IndexOf(tr);
-                    if (tr.Equals("na") || tr.Equals("volgende"))
-                    {
-                        foreach(string naVolgende in new string[] {"dag"})
-                        {
-                            if (inputText.Substring(firstRef, inputText.IndexOf(".") - firstRef).Contains(naVolgende))
-                            {
-                                MessageBox.Show("volgende of na " + tr + " " + naVolgende);
-                            }
-                        }
-                        
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            
-            if (numberOfEntries > 1 && secondRef != inputText.Length)
-            {
-                
-                offSet = CalculateNextDate.GetInstance().CalculateOffSet(inputText.ToLower(), referenceString2.ToString().ToLower(), currentDate);
-            
-                return secondRef;
-            }
-
-            offSet = CalculateNextDate.GetInstance().CalculateOffSet(inputText.ToLower(), referenceString.ToString().ToLower(), currentDate);
-            
-            return firstRef;
+            mainWindow.UpdateDate(offSet.ToString("dd/MM/yyyy"));
         }
     }
 }

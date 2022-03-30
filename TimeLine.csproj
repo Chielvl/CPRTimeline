@@ -67,6 +67,7 @@
     <Compile Include="CalculateNextDate.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="ItemCreator.cs" />
     <Compile Include="TextReader.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

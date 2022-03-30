@@ -24,8 +24,10 @@ namespace TimeLine
         public DatePicker datePicker;
         TextBox eventDesc;
         TextBox eventChar;
+        ComboBox combo;
         TextBox notBox;
         StackPanel timeline;
+        String[] characters = { "Full Party", "Archer", "Beetle", "Doc", "Kintsugi" };
 
         DateTime date = DateTime.Today;
         public MainWindow()
@@ -34,16 +36,28 @@ namespace TimeLine
             ManageFile.GetInstance().mainWindow = this;
             ManageFile.GetInstance().Load();
             TextReader.GetInstance().mainWindow = this;
+            combo = (ComboBox)FindName("CharacterComboBox");
+            combo.ItemsSource = characters;
+            combo.SelectedIndex = 0;
             datePicker = (DatePicker)FindName("Date");
             eventDesc = (TextBox)FindName("EventDesc");
             eventChar = (TextBox)FindName("Character");
             notBox = (TextBox)FindName("NotificationBox");
             timeline = (StackPanel)FindName("TimeLineStackPanel");
-            if (timeline.Children.Count > 0)
+            UpdateDate();
+            
+        }
+
+        public void UpdateDate(string date = "")
+        {
+            if (date == "")
+                date = DateTime.Now.ToString();
+            else
             {
-                string date = timeline.Children.OfType<StackPanel>().FirstOrDefault().Name.Substring(9).Replace('_', '-');
+                date = timeline.Children.OfType<StackPanel>().FirstOrDefault().Name.Substring(9).Replace('_', '-');
                 this.date = DateTime.Parse(date);
             }
+            MessageBox.Show("Date is: " + date);
             datePicker.SelectedDate = this.date;
             datePicker.DisplayDate = this.date;
         }
@@ -51,63 +65,12 @@ namespace TimeLine
         {
             notBox.Text = msg;
         }
-        public void AddItemToTimeLine(Event e)
+
+        public void AddItemToTimeLine(Event eventToAdd)
         {
             StackPanel timeline = (StackPanel)FindName("TimeLineStackPanel");
-            StackPanel eventContainer = new StackPanel();
-            TextBlock dateBox = new TextBlock();
-            TextBlock descBox = new TextBlock();
-            Button deleteButton = new Button();
-
-            string name = e.GetDate().Replace('-', '_');
-
-            eventContainer.Width = 400;
-            eventContainer.Height = 980;
-            eventContainer.Margin = new Thickness(10);
-            eventContainer.Name = "container" + name;
-
-            dateBox.Name = "datebox" + name;
-            dateBox.Margin = new Thickness(30);
-            dateBox.Height = 300;
-            dateBox.VerticalAlignment = VerticalAlignment.Stretch;
-            dateBox.Text = e.GetDate();
-            dateBox.FontWeight = FontWeights.Bold;
-
-            descBox.Width = 250;
-            descBox.Height = 550;
-            descBox.Padding = new Thickness(0);
-            descBox.Name = "descBox" + name;
-            descBox.Text = e.GetDescription();
-            descBox.TextWrapping = TextWrapping.WrapWithOverflow;
-
-            deleteButton.Content = $"Delete \'{e.GetDate()}\'";
-            deleteButton.Width = 150;
-            deleteButton.Height = 50;
-            deleteButton.HorizontalAlignment = HorizontalAlignment.Right;
-            deleteButton.VerticalAlignment = VerticalAlignment.Bottom;
-            deleteButton.Margin = new Thickness(10);
-
-            deleteButton.Click += DelegateMethod;
-
-            timeline.Children.Add(eventContainer);
-            eventContainer.Children.Add(dateBox);
-            eventContainer.Children.Add(descBox);
-            eventContainer.Children.Add(deleteButton);
-
-            if (isWhiteOnRed)
-            {
-                eventContainer.Background = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-                dateBox.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                descBox.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-
-            }
-            isWhiteOnRed = !isWhiteOnRed;
-
-            if (DateTime.Parse(e.GetDate()) == DateTime.MinValue)
-            {
-                //deleteButton.Visibility = Visibility.Hidden;
-                dateBox.Visibility = Visibility.Hidden;
-            }
+            StackPanel addedItemStackPanel = ItemCreator.StackPanelCreator(eventToAdd);
+            timeline.Children.Add(addedItemStackPanel);
         }
 
         public void AddEntryToDictionary()
@@ -116,7 +79,7 @@ namespace TimeLine
                 return;
             date = datePicker.SelectedDate.Value;
             Event e = new Event(date, eventDesc.Text);
-            TextReader.GetInstance().ReadText(eventDesc.Text.Trim(), date,eventChar.Text.Trim());
+            TextReader.GetInstance().ReadText(eventDesc.Text.Trim(), date,combo.SelectedValue.ToString().Trim());
         }
 
         private void TimelineEventAdderSwitcher(object sender, RoutedEventArgs e)
@@ -144,18 +107,6 @@ namespace TimeLine
             AddEntryToDictionary();
         }
 
-
-        public delegate void Del(object sender, RoutedEventArgs e,string message);
-
-        public static void DelegateMethod(object sender, RoutedEventArgs e)
-        {
-            string name = sender.ToString();
-
-            name = name.Substring(name.IndexOf("'")).Replace('\'', ' ').Trim();
-
-            ManageFile.GetInstance().RemoveEvent(name);
-        }
-
         public void ClearTimeLine()
         {
             isWhiteOnRed = false;
@@ -163,11 +114,15 @@ namespace TimeLine
             timeline.Children.RemoveRange(0, timeline.Children.Count);
         }
 
-        public void ClearEntryField()
+        public void ClearEntryField(TextBox textBoxToClear)
         {
-            eventDesc.Text = "";
-            datePicker.DisplayDate = DateTime.Today;
-            datePicker.SelectedDate = DateTime.Today;
+            textBoxToClear.Clear();
+        }
+
+        public void ClearDefaultDescription(object sender, RoutedEventArgs e)
+        {
+            if(eventDesc.Text == "Geef het event een omschrijving.")
+                ClearEntryField(eventDesc);
         }
 
         public bool DisplayErrorMsg()
@@ -175,10 +130,8 @@ namespace TimeLine
             StringBuilder errorMsg = new StringBuilder();
             if (datePicker.SelectedDate == null)
                 errorMsg.AppendLine("Geef een datum op.");
-            if (eventDesc.Text == "Geef het event een omschrijving")
+            if (eventDesc.Text == "Geef het event een omschrijving.")
                 errorMsg.AppendLine("Geef een omschrijving op");
-            if (eventChar.Text == "Wie is dit overkomen?")
-                errorMsg.AppendLine("Geef een karakter op");
             if (errorMsg.ToString() != "")
             {
                 MessageBox.Show(errorMsg.ToString());
