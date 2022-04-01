@@ -1,31 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace TimeLine
 {
-    public class TextReader
+    public class FindTimeReferenceInText
     {
-        private static TextReader instance;
-
         private Regex regEx = new Regex(@"(volgende (ochtend|avond|[a-z]*dag|week))|((na)\s([a-z]*|\d)\s?(([a-z]{3,6})?[a-z]* weekend|dagen|week|weken|dag))|(([a-z]*|\d){1}\s(dag|dagen|week|weken)\s(later))|((([a-z]{3,6})?dag|weekend)\s(erop|erna|daarop))", RegexOptions.IgnoreCase);
 
         DateTime offSet;
         public MainWindow mainWindow;
-        private TextReader()
+        public FindTimeReferenceInText(MainWindow main)
         {
-        }
-
-        public static TextReader GetInstance()
-        {
-            if (instance == null)
-                instance = new TextReader();
-            return instance;
+            mainWindow = main;
         }
 
         public void SetDate(DateTime date)
@@ -33,9 +19,9 @@ namespace TimeLine
             offSet = date;
         }
 
-        public void ReadText(string input, DateTime startingDate, string character)
+        public void SearchTextForTimeReferences(string input, DateTime startingDate, string character)
         {
-            
+
             MatchCollection matches = Regex.Matches(input.ToLower(), regEx.ToString(), RegexOptions.IgnoreCase);
             //if there are no matches, make a single entry;
             if (matches.Count == 0)

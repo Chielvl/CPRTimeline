@@ -67,8 +67,9 @@
     <Compile Include="CalculateNextDate.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="FindNameReferenceInText.cs" />
     <Compile Include="ItemCreator.cs" />
-    <Compile Include="TextReader.cs" />
+    <Compile Include="FindTimeReferenceInText.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

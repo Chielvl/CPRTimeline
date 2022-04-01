@@ -20,28 +20,28 @@ namespace TimeLine
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool isWhiteOnRed;
         public DatePicker datePicker;
         TextBox eventDesc;
-        TextBox eventChar;
         ComboBox combo;
         TextBox notBox;
         StackPanel timeline;
-        String[] characters = { "Full Party", "Archer", "Beetle", "Doc", "Kintsugi" };
+        readonly string[] characters = { "Full Party", "Archer", "Beetle", "Doc", "Kintsugi" };
+        ItemCreator creator;
+        FindTimeReferenceInText findTimeRef;
 
         DateTime date = DateTime.Today;
         public MainWindow()
         {
             InitializeComponent();
+            creator = new ItemCreator();
             ManageFile.GetInstance().mainWindow = this;
             ManageFile.GetInstance().Load();
-            TextReader.GetInstance().mainWindow = this;
+            findTimeRef = new FindTimeReferenceInText(this);
             combo = (ComboBox)FindName("CharacterComboBox");
             combo.ItemsSource = characters;
             combo.SelectedIndex = 0;
             datePicker = (DatePicker)FindName("Date");
             eventDesc = (TextBox)FindName("EventDesc");
-            eventChar = (TextBox)FindName("Character");
             notBox = (TextBox)FindName("NotificationBox");
             timeline = (StackPanel)FindName("TimeLineStackPanel");
             UpdateDate();
@@ -51,13 +51,12 @@ namespace TimeLine
         public void UpdateDate(string date = "")
         {
             if (date == "")
-                date = DateTime.Now.ToString();
+                _ = DateTime.Now.ToString();
             else
             {
                 date = timeline.Children.OfType<StackPanel>().FirstOrDefault().Name.Substring(9).Replace('_', '-');
                 this.date = DateTime.Parse(date);
             }
-            MessageBox.Show("Date is: " + date);
             datePicker.SelectedDate = this.date;
             datePicker.DisplayDate = this.date;
         }
@@ -68,8 +67,10 @@ namespace TimeLine
 
         public void AddItemToTimeLine(Event eventToAdd)
         {
+            if(creator == null)
+                creator = new ItemCreator();
             StackPanel timeline = (StackPanel)FindName("TimeLineStackPanel");
-            StackPanel addedItemStackPanel = ItemCreator.StackPanelCreator(eventToAdd);
+            StackPanel addedItemStackPanel = creator.StackPanelCreator(eventToAdd);
             timeline.Children.Add(addedItemStackPanel);
         }
 
@@ -77,9 +78,10 @@ namespace TimeLine
         {
             if (DisplayErrorMsg())
                 return;
-            date = datePicker.SelectedDate.Value;
+            date =
+                datePicker.SelectedDate.Value;
             Event e = new Event(date, eventDesc.Text);
-            TextReader.GetInstance().ReadText(eventDesc.Text.Trim(), date,combo.SelectedValue.ToString().Trim());
+            findTimeRef.SearchTextForTimeReferences(eventDesc.Text.Trim(), date,combo.SelectedValue.ToString().Trim());
         }
 
         private void TimelineEventAdderSwitcher(object sender, RoutedEventArgs e)
@@ -109,7 +111,6 @@ namespace TimeLine
 
         public void ClearTimeLine()
         {
-            isWhiteOnRed = false;
             StackPanel timeline = (StackPanel)FindName("TimeLineStackPanel");
             timeline.Children.RemoveRange(0, timeline.Children.Count);
         }

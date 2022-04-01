@@ -42,11 +42,11 @@ public class ManageFile
         if (this.eventsDictionary.ContainsKey(e.GetDate()))
         {
             if (System.Windows.Forms.MessageBox.Show($"Er bestaat al een event met de datum {e.GetDate()}." +
-                $" Wil je deze gebeurtenis toevoegen aan dat event?","Event bestaat al", 
-                MessageBoxButtons.OKCancel,MessageBoxIcon.Question) == DialogResult.OK)
-            { 
-            eventsDictionary.TryGetValue(e.GetDate(), out Event presentEvent);
-            presentEvent.AddDescription(e.GetDescription());
+            $" Wil je deze gebeurtenis toevoegen aan dat event?", "Event bestaat al",
+            MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                eventsDictionary.TryGetValue(e.GetDate(), out Event presentEvent);
+                presentEvent.AddDescription(e.GetDescription());
             }
         }
         // Else if we do not have this event details 
@@ -87,24 +87,24 @@ public class ManageFile
     public void Save()
     {
         FileStream writerFileStream =
-                new FileStream(DATA_FILENAME, FileMode.Create, FileAccess.Write);
+        new FileStream(DATA_FILENAME, FileMode.Create, FileAccess.Write);
         // Gain code access to the file that we are going
         // to write to
         try
         {
             // Create a FileStream that will write data to file.
-            
+
             // Save our dictionary of events to file
             this.formatter.Serialize(writerFileStream, this.eventsDictionary);
-            
+
             // Close the writerFileStream when we are done.
             writerFileStream.Close();
-            MessageBox.Show("De tijdlijn is geupdate","Update gelukt" );
+            MessageBox.Show("De tijdlijn is geupdate", "Update gelukt");
             mainWindow.ClearEntryField(mainWindow.EventDesc);
         }
         catch (Exception e)
         {
-            MessageBox.Show("Het is niet gelukt om de gebeurtenis op te slaan.\n\n + e);
+            MessageBox.Show("Het is niet gelukt om de gebeurtenis op te slaan.\n\n" + e);
         } // end try-catch
         finally
         {
@@ -124,21 +124,21 @@ public class ManageFile
                 // Create a FileStream will gain read access to the 
                 // data file.
                 FileStream readerFileStream = new FileStream(DATA_FILENAME,
-                    FileMode.Open, FileAccess.Read);
+                FileMode.Open, FileAccess.Read);
                 // Reconstruct information of our events from file.
                 this.eventsDictionary = (SortedDictionary<string, Event>)this.formatter.Deserialize(readerFileStream);
                 // Close the readerFileStream when we are done
                 readerFileStream.Close();
                 eventsDictionary.OrderBy(key => key.Key);
                 eventsDictionary.Reverse();
-                
+
                 mainWindow.ClearTimeLine();
                 if (this.eventsDictionary.Keys.Count > 0)
                 {
                     foreach (var key in eventsDictionary.Reverse())
                     {
                         this.eventsDictionary.TryGetValue(key.Key, out Event e);
-                        
+
                         mainWindow.AddItemToTimeLine(e);
 
                     }
@@ -150,9 +150,8 @@ public class ManageFile
             }
             catch (Exception e)
             {
-                MessageBox.Show("Het bestand bestaat, maar er is een probleem met het uitlezen." + e);
+                MessageBox.Show("Het bestand bestaat, maar er is een probleem met het uitlezen.\n" + e);
             } // end try-catch
-
         } // end if
     } // end public bool Load()
 
